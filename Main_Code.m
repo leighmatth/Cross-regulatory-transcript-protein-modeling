@@ -61,7 +61,7 @@ title('Inferred Relationships')
 %% Box 6: Model Prediction Variables
 Xmask = X_all_mask{:,:}'; % Mask indicating the targeted transcripts for all of the experiments
 Xtarg = Xmask.*Y_all{:,:}'; % Desired knockdown levels of targeted transcripts
-Ywt = Ytable("WT_CK",:)'; % Average wildtype abundances
+Ywt = Ytable{"WT_CK",:}'; % Average wildtype abundances
 targ_prot_flag = 1; % Consider proteins targeted as well as transcripts
 
 %% Box 7: Model Prediction
@@ -82,7 +82,7 @@ err_thresh = 25; %error threshfold for being considered a 'good' fit
 [Gc, Const] = findgroups(cellfun(@(x) x(6:8),Experiments,'UniformOutput',false)); %Group experiments into their different constructs (targeted knockdowns) (e.g., a01)
 [Gcl, ConstLines] = findgroups(cellfun(@(x) x(6:end-2),Experiments,'UniformOutput',false)); %Group replicates of the same experimental line (e.g., a01.01 for construct a01 line 1)
 
-[fit_table, RMSE] = PredictedWell(err_thresh,Ypred,Y,Ywt,Const,ConstLines,Gcl);
+[fit_table, RMSE] = PredictedWell(err_thresh,Ypred,Y,Ywt,Const,ConstLines,Gcl,GeneNames);
 
 
 %% Box 10: Find the inferred relationships that contribute at least 50% of change from wt
@@ -93,7 +93,7 @@ select_table=fit_table(2:end,:); % creates table with columns and row names
 select_table{:,:}=fit_table{2:end,:}.*SigDEtable{:,:}; % Look at experiments that were BOTH predicted 'well' and differentially expressed for each transcript/protein element
 
 % Create EdgeTable with highly influencing relationships (aka edges)
-EdgeTable = CreateEdgeTable(B,cutoff,select_table,Y_all,X_all_mask,Ypred,Ywt,Gc,Const,Gcl,ConstLines);
+EdgeTable = CreateEdgeTable(B,cutoff,select_table,Y_all,X_all_mask,Ypred,Ywt,Gc,Const,Gcl,GeneNames);
 
 num_edges_subset = size(EdgeTable,1); % number of edges considered highly influencing
 display(num_edges_subset)

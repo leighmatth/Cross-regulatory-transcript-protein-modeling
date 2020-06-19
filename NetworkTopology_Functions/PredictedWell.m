@@ -1,11 +1,10 @@
-function [fit_table, RMSE] = PredictedWell(err_thresh,Ypred,Y,Ywt,Const,ConstLines,Gcl)
+function [fit_table, RMSE] = PredictedWell(err_thresh,Ypred,Y,Ywt,Const,ConstLines,Gcl,GeneLabels)
 
-GeneLabels=Ywt.Properties.VariableNames;
 
 Ypredmeans=splitapply(@(x) mean(x,1), Ypred', Gcl); % Predicted abundances averaged over replicates
 Ymeans=Y'; % Experimental abundances averaged over replicates (from Box 1)
 
-Error=100*(Ypredmeans-Ymeans)./Ywt{:,:}; % Calculate predicted error as a percentage of wt
+Error=100*(Ypredmeans-Ymeans)./Ywt'; % Calculate predicted error as a percentage of wt
 M=size(Error,2); % # of transcripts and proteins
 
 % Calculate the RMSE for each transcript and protein over all of the lines for each construct

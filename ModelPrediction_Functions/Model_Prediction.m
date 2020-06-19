@@ -11,7 +11,9 @@ if nargin < 6
         error('Ywt must be passed in if targ_prot_flag is 1')
     end
 else
-    Ywt=Ywt{:,:}';
+    if size(Ywt)~=[size(Xtarg,1) 1]
+        error('Ywt must be a column vector with the same number of rows as Xtarg')
+    end
 end
 
 [M,Nact]=size(Xtarg);

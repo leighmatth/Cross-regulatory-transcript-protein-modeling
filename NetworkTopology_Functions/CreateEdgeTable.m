@@ -1,5 +1,4 @@
-function EdgeTable = CreateEdgeTable(B,cutoff,select_table,Y,X_mask,Ypred,Ywt,Gc,Const,Gcl,ConstLines)
-GeneLabels=Ywt.Properties.VariableNames;
+function EdgeTable = CreateEdgeTable(B,cutoff,select_table,Y,X_mask,Ypred,Ywt,Gc,Const,Gcl,GeneLabels)
 
 jinds=zeros(length(Const),1);
 jinds(1,1)=find(Gcl==1,1,'first'); %wt
@@ -8,8 +7,6 @@ for c=2:length(Const)
 TargConst=Const{c}; % Construct
 TargConst_ind=find(cellfun(@(x) strcmp(x,TargConst),Const)); %indices of the construct
 
-% TargConstLine_ind=find(cellfun(@(x) contains(x,TargConst),ConstLines)); %indices for each line for the construct
-
 % Find indices for targeted gene(s)
 TargGene_inds=find(Gc==TargConst_ind); % All experiments
 it=find(X_mask{TargGene_inds(1),:}); 
@@ -17,7 +14,7 @@ it=find(X_mask{TargGene_inds(1),:});
 % Find the line/replicate that had the greated knockdown in the targeted
 % gene transcripts
 Ytargsub=Y(TargGene_inds,it); % Targeted abundances of the construct 
-Ytargsub{:,:}=Ytargsub{:,:}./Ywt{:,it};
+Ytargsub{:,:}=Ytargsub{:,:}./Ywt(it,:)';
 [~,min_rep]=min(sum(Ytargsub{:,:},2));
 
 jinds(c,1)=TargGene_inds(min_rep); % experiment index of greatest targeted knockdown for this construct
