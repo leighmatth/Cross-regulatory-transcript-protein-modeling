@@ -24,7 +24,7 @@ Xmask = Xmask_table{:,:}';
 
 %% Box 2: Cross-validation
 % Set seed for random number generator
-rng_seed = 123456; %20602;%(top)24561;%1010;%44444;
+rng_seed = 123456;
 rng(rng_seed);
 
 % Set the cross-validation parameters
@@ -35,9 +35,7 @@ params.maxiter = 1000; % max iterations for SML algorithm
 params.cv_its = 1; % # of iterations of the kcv-fold cross-validations
 
 %% Box 3
-tic
 [B,mue,ilambda_cv,rho_factor,sigma2] = SML_wrapper(Y,Xmask,params);
-toc
 
 %% Box 4: Check that the bounds of the regularization parameters were sufficient to find minimums
 sml_regparam = [ilambda_cv > 1, ilambda_cv < length(params.lambda_factors)]; % Check if SML regularization parameter is either the first or last input parameter, indicating a minimum was not found
@@ -47,23 +45,23 @@ display(sml_regparam) % display result to command window; 1 if TRUE, 0 if FALSE
 display(ridge_regparam) % display result to command window; 1 if TRUE, 0 if FALSE
 
 %% Box 5: View/Compare result
-Edges = abs(sign(B));
-num_edges = sum(sum(Edges)); % Number of edges detected
-display(num_edges)
+Inferred_Relationships = abs(sign(B));
+num_relationships = sum(sum(Inferred_Relationships)); % Number of relationships detected
+display(num_relationships)
 
 % Plot heatmap
-colormap = [1 0 0; % red for negative edges
-    1 1 1; % white for no edge detected
-    0 1 0]; % green for positive edges
+colormap = [1 0 0; % red for negative relationships
+    1 1 1; % white for no relationship detected
+    0 1 0]; % green for positive relationships
 
 figure;
 heatmap(GeneNames,GeneNames,sign(B),'Colormap',colormap,'ColorbarVisible','off');
-title('Detected Edges')
+title('Inferred Relationships')
 
 %% Box 6: Model Prediction Variables
 Xmask = X_all_mask{:,:}'; % Mask indicating the targeted transcripts for all of the experiments
 Xtarg = Xmask.*Y_all{:,:}'; % Desired knockdown levels of targeted transcripts
-Ywt = Ytable("WT_CK",:); % Average wildtype abundances
+Ywt = Ytable("WT_CK",:)'; % Average wildtype abundances
 targ_prot_flag = 1; % Consider proteins targeted as well as transcripts
 
 %% Box 7: Model Prediction
@@ -87,14 +85,14 @@ err_thresh = 25; %error threshfold for being considered a 'good' fit
 [fit_table, RMSE] = PredictedWell(err_thresh,Ypred,Y,Ywt,Const,ConstLines,Gcl);
 
 
-%% Box 10: Find the edges that contribute at least 50% of change from wt
+%% Box 10: Find the inferred relationships that contribute at least 50% of change from wt
 load SigDEtable.mat
-cutoff=0.5; %percentage of change from wt to identify highly influencing edges (e.g., cutoff=0.5 -> 50% of total change amount)
+cutoff=0.5; %percentage of change from wt to identify highly influencing relationships (e.g., cutoff=0.5 -> 50% of total change amount)
 select_table=fit_table(2:end,:); % creates table with columns and row names
 
 select_table{:,:}=fit_table{2:end,:}.*SigDEtable{:,:}; % Look at experiments that were BOTH predicted 'well' and differentially expressed for each transcript/protein element
 
-% Create EdgeTable with highly influencing edges
+% Create EdgeTable with highly influencing relationships (aka edges)
 EdgeTable = CreateEdgeTable(B,cutoff,select_table,Y_all,X_all_mask,Ypred,Ywt,Gc,Const,Gcl,ConstLines);
 
 num_edges_subset = size(EdgeTable,1); % number of edges considered highly influencing
